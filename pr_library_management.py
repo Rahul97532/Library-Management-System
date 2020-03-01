@@ -55,9 +55,50 @@ def issue_book_button():
         int(book_id)
     except:
         messagebox.showerror("Error","Invalid information type entered")
-        
-    ans=lib.issue_book(roll_no,book_id)
-    print(ans)
+    else:
+        if lib.max_book_id_check(book_id) or lib.check_book_status(book_id):
+            messagebox.showerror("Error","Invalid Book Id entered")
+            return
+        if lib.book_availability_check(book_id):
+            messagebox.showerror("Error","Book not available in library!!!")
+            return "NA"
+        if lib.student_book_validity_check(roll_no,book_id) =="overflow":
+            messagebox.showerror("Error","No more books allowed to the user!!!")
+            return "overflow"
+        if lib.student_book_validity_check(roll_no,book_id) =="Duplicate request":
+            messagebox.showerror("Error","Same book cannot be issued more than once!!!")
+            return "Duplicate request"
+        if lib.user_check(roll_no):
+            messagebox.showerror("Error","Unknown User Roll Number!!!")
+            return "Unknown User"
+        try:
+            ans=lib.issue_book(roll_no,book_id)
+        except:
+            messagebox.showerror("Error","Something Went Wrong")
+        else:
+            set_data(ans)
+            messagebox.showinfo("Message","Book Issued Successfully")
+           
+
+def set_data(ans):
+    u_ent1[0].insert(0,ans[0][1])   #Inserting name
+    u_ent1[1].insert(0,ans[0][4])   #Inserting course
+    u_ent2[1].insert(0,ans[0][2])   #Inserting Phone
+    u_ent3[0].insert(0,ans[0][5])   #Inserting address
+    
+    b_ent1[1].insert(0,ans[1][1])   #Inserting book name
+    b_ent2[0].insert(0,ans[1][2])   #Inserting book author
+    b_ent2[1].insert(0,ans[1][6])   #Inserting book cost
+    b_ent3[0].insert(0,ans[1][3])   #Inserting book genre
+    b_ent3[1].insert(0,ans[1][7])   #Inserting book language
+    b_ent4[0].insert(0,ans[1][4])   #Inserting book total copies
+    b_ent4[1].insert(0,ans[1][8])   #Inserting book rack no
+    b_ent5[0].insert(0,ans[1][5])   #Inserting book copies left
+    b_ent5[1].insert(0,ans[1][10])   #Inserting book publisher
+    b_ent6[0].insert(0,ans[2])   #Inserting book issue_date
+    b_ent6[1].insert(0,ans[3])   #Inserting book return_date
+    
+            
 def return_book_button():
     pass
 
@@ -146,8 +187,8 @@ b_ent4=b.cells("Total Copies","Rack No.",f5)
 b_ent5=b.cells("Copies Left","Publisher",f5)
 b_ent6=b.cells("Date of Issue","Date of Return",f5)
 ##b_ent1[0].config(state=tk.DISABLED)
-b_ent6[0].config(state=tk.DISABLED)
-b_ent6[1].config(state=tk.DISABLED)
+##b_ent6[0].config(state=tk.DISABLED)
+##b_ent6[1].config(state=tk.DISABLED)
 
 
 f5.pack()

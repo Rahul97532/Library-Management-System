@@ -1,7 +1,7 @@
 ##import pymysql
 
 import MySQLdb
-
+from datetime import *
 
 def display_all_data():
     db=MySQLdb.connect(host='localhost',database='library',user='root',password='3131Rahul@Gupta')
@@ -67,14 +67,80 @@ def update_book(Id,qty):
     cursor.execute(sql,val)
     db.commit()
     db.close()
+def book_availability_check(Id):
+    db=MySQLdb.connect(host="localhost",database="library",user="root",password="3131Rahul@Gupta")
+    cursor=db.cursor()
+    sql="Select available_copies from books where Book_Id=%s"
+    val=(str(Id))
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    if data[0]==0:
+        return "Not available"
+    db.close()
 
+def student_book_validity_check(r_no,Id):
+    db=MySQLdb.connect(host='localhost',database='library',user='root',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Select count(*) from issue_record where Roll_No=%s"
+    val=(str(r_no),)
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    if data[0]==3:
+        return "overflow"
+    sql="select count(*) from issue_record where Roll_no=%s and Book_Id=%s"
+    val=(str(r_no),str(Id))
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    if data[0]==1:
+        return "Duplicate request"
+    db.close()
 def issue_book(r_no,b_id):
     db=MySQLdb.connect(host="localhost",database="library",user="root",password="3131Rahul@Gupta")
     cursor=db.cursor()
+##    if book_availability_check(b_id):
+##        return "NA"
+##    if student_book_validity_check(r_no,b_id) =="overflow":
+##        return "overflow"
+##    if student_book_validity_check(r_no,b_id) =="Duplicate request":
+##        return "Duplicate request"
+##    if user_check(r_no):
+##        return "Unknown User"
     sql="select * from users where Roll_No=%s"
-    val=(r_no)
+##    sql="Select name from users where Roll_No=%s"
+    val=(str(r_no),)
     cursor.execute(sql,val)
-    data=cursor.fetchone()
+    user=cursor.fetchone()
+    sql="Select * from books where Book_Id=%s"
+    val=(str(b_id),)
+    cursor.execute(sql,val)
+    book=cursor.fetchone()
+
+    idt,rdt=issue_return_date()
+    sql="Insert into issue_record values(%s,%s,%s,%s)"
+    val=(str(r_no),str(b_id),idt,rdt)
+    cursor.execute(sql,val)
+    cursor.execute("Update books set available_copies=available_copies-1 where Book_Id=%s", (str(b_id),) )
     db.commit()
     db.close()
-    return data
+    return (user,book,idt,rdt)
+
+def issue_return_date():
+    issue=date.today()
+    ret=issue+timedelta(days=15)
+    return(issue,ret)
+
+##issue_book('20003','4')
+
+
+def user_check(r_no):
+    db=MySQLdb.connect(host='localhost',database='library',user='root',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Select count(*) from users where roll_no=%s"
+    val=(str(r_no),)
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    db.close()
+    if data[0]==0:
+        return "Unknown User"
+
+##print(issue_book(20005,10))
