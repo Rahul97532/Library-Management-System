@@ -6,6 +6,8 @@ import pr_database as lib
 
 def remove_book_window():
     rem_win=tk.Toplevel()
+    rem_win.lift()
+    rem_win.attributes('-topmost',True)
     rem_win.focus_force()
     rem_win.title("Remove Book")
     rem_win.geometry('900x300+300+100')

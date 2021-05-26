@@ -122,7 +122,7 @@ def issue_book(r_no,b_id):
     cursor.execute("Update books set available_copies=available_copies-1 where Book_Id=%s", (str(b_id),) )
     db.commit()
     db.close()
-    return (user,book,idt,rdt)
+    return (user,book,(idt,rdt))
 
 def issue_return_date():
     issue=date.today()
@@ -144,3 +144,61 @@ def user_check(r_no):
         return "Unknown User"
 
 ##print(issue_book(20005,10))
+
+def return_date_check(r_no,b_id):
+     db=MySQLdb.connect(host='localhost',user='root',database='library',password='3131Rahul@Gupta')
+     cursor=db.cursor()
+     sql="Select Return_Date from issue_record where roll_no=%s and Book_Id=%s"
+     val=(str(r_no),str( b_id))
+     cursor.execute(sql,val)
+     act_dt=cursor.fetchone()
+     db.close()
+     rt_dt=date.today()
+##     print(act_dt[0])
+     if rt_dt>act_dt[0]:
+         diff=rt_dt-act_dt[0]
+     else:
+         diff='0'
+     return str(diff)[0:1]
+
+
+def return_book(r_no,b_id):
+    db=MySQLdb.connect(host='localhost',user='root',database='library',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Delete from issue_record where Roll_No=%s and Book_Id=%s"
+    val=(str(r_no),str(b_id))
+    cursor.execute(sql,val)
+    cursor.execute("Update books set available_copies=available_copies+1 where Book_Id=%s", (str(b_id),) )
+    db.commit()
+    db.close()
+
+def user_details(r_no):
+    db=MySQLdb.connect(host='localhost',user='root',database='library',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Select * from users where Roll_No=%s"
+    val=(str(r_no),)
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    db.close()
+    return data
+def book_details(b_id):
+    db=MySQLdb.connect(host='localhost',user='root',database='library',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Select * from books where Book_Id=%s"
+    val=(str(b_id),)
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    db.close()
+    return data
+
+def book_transaction_data(r_no,b_id):
+    db=MySQLdb.connect(host='localhost',user='root',database='library',password='3131Rahul@Gupta')
+    cursor=db.cursor()
+    sql="Select Issue_Date,Return_Date from issue_record where Roll_No=%s and  Book_Id=%s"
+    val=(str(r_no),str(b_id))
+    cursor.execute(sql,val)
+    data=cursor.fetchone()
+    db.close()
+    return data
+    
+

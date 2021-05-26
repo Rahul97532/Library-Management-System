@@ -76,11 +76,11 @@ def issue_book_button():
         except:
             messagebox.showerror("Error","Something Went Wrong")
         else:
-            set_data(ans)
+            set_data_on_screen(ans)
             messagebox.showinfo("Message","Book Issued Successfully")
            
 
-def set_data(ans):
+def set_data_on_screen(ans):
     u_ent1[0].insert(0,ans[0][1])   #Inserting name
     u_ent1[1].insert(0,ans[0][4])   #Inserting course
     u_ent2[1].insert(0,ans[0][2])   #Inserting Phone
@@ -95,12 +95,37 @@ def set_data(ans):
     b_ent4[1].insert(0,ans[1][8])   #Inserting book rack no
     b_ent5[0].insert(0,ans[1][5])   #Inserting book copies left
     b_ent5[1].insert(0,ans[1][10])   #Inserting book publisher
-    b_ent6[0].insert(0,ans[2])   #Inserting book issue_date
-    b_ent6[1].insert(0,ans[3])   #Inserting book return_date
+    b_ent6[0].insert(0,ans[2][0])   #Inserting book issue_date
+    b_ent6[1].insert(0,ans[2][1])   #Inserting book return_date
     
             
 def return_book_button():
-    pass
+    roll_no=u_ent2[0].get()
+    book_id=b_ent1[0].get()
+    try:
+        int(roll_no)
+        int(book_id)
+    except:
+        messagebox.showerror("Error","Invalid Information Type entered")
+    else:
+        if lib.max_book_id_check(book_id) or lib.check_book_status(book_id):
+            messagebox.showerror("Error","Invalid Book Id entered")
+            return
+        if lib.user_check(roll_no):
+            messagebox.showerror("Error","Unknown User Roll Number!!!")
+            return "Unknown User"
+        latency=lib.return_date_check(roll_no,book_id)
+        fine=5              # Fine is Rs 5 per day for late return
+        if int(latency)>0:
+            total_fine=latency*fine
+            u_ent3[1].insert(0,str(total_fine))
+        
+        ans=(lib.user_details(roll_no),lib.book_details(book_id),lib.book_transaction_data(roll_no,book_id))        
+        set_data_on_screen(ans)
+        lib.return_book(roll_no,book_id)
+        messagebox.showinfo("Message","Book returned successfully")
+            
+        
 
 def display_book_button():
     tx1.delete(0,tk.END)
